@@ -54,7 +54,7 @@ protected IProposalService ProposalService { get; set; }
 
 IProposalService is in the Blazor.Services namespace.
 
-- Override OnInitializedAsync and fill the Proposals property by awaiting the GetAll method on IProposalService. As a parameter parse 
+- Override OnInitializedAsync and fill the Proposals property by awaiting the GetByConferenceId method on IProposalService. As a parameter parse 
 the ConferenceId string parameter to an int. (int.Parse(ConferenceId))
 - For the Razor part paste the razor syntax copied from the ConferenceList component. And change the following:
 	- The columns of the table are Title, Speaker, Approved and Actions
