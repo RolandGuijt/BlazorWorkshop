@@ -1,0 +1,33 @@
+﻿@page "/employeeoverview"
+@inherits EmployeeOverviewBase
+
+<h1 class="page-title">All employees</h1>
+
+@if (Employees == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Employee ID</th>
+                <th>First name</th>
+                <th>Last name</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var employee in Employees)
+            {
+                <EmployeeRow Employee="@employee"></EmployeeRow>
+            }
+        </tbody>
+    </table>
+}
+
+<button @onclick="QuickAddEmployee" class="btn btn-dark table-btn quick-add-btn">&nbsp;&nbsp;+&nbsp;&nbsp;</button>
+
+<AddEmployeeDialog @ref="AddEmployeeDialog" CloseEventCallback="@AddEmployeeDialog_OnDialogClose"></AddEmployeeDialog>

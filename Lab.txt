@@ -1,0 +1,245 @@
+Before you start. Please check:
+
+- If you have an up-to-date (not older than a month) Visual Studio 2022.
+
+Part one
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+Stage one: Blazor first steps
+
+- In Visual Studio create a new Blazor Server or Blazor WebAssembly project. Do not choose the "empty" versions.
+- Run the application and see what it does.
+- Add a page with your contact information called contact by right clicking on the project, select add => new razor component
+- Make sure you add the page directive.
+- Include it in the navigation menu
+- Run the application and see it working.
+- Add functionality that shows the number of times users clicked on your name. Use the Counter.razor page as a guidance for this.
+
+Stage two: Exploration of the first demo project
+
+- Open the solution in the Start folder. This is a server-side Blazor project. In the finished folder is the application as it should be when you finish this lab. So if you want to peek..
+- Run the application. Both the API and Blazor app should start. If not, check the solution settings. (Right click on solution, go to properties)
+- A list of conferences is displayed. And below the list a add button that lets you add a new conference.
+- Before you're creating components yourself we'll first make sure you understand how this part sticks together.
+- Examine program.cs, startup.cs, _Host.cshtml and App.razor in order. See if you can follow application startup as explained by Roland.
+- Open ConferenceList.razor. Note that it is a page component that maps to /, so this is the landing page of the application.
+- It gets an IConferenceService injected. This solution uses a gRPC API. Feel free to investigate how this works if you're interested. 
+- Scroll all the way down. Notice the private field conferences that is being filled by an async call to the object implementing IConferenceService in the OnInitializedAsync lifecycle method which is overridden. 
+- When you scroll up you can see that while the conferences are loading a text is displayed.
+- When the conferences are loaded a table is rendered.
+- In the body of the table for each conference another component is rendered called ConferenceListItem. An instance of a conference is passed in.
+- Open ConferenceListItem in the components folder. It has the Conference property marked with a parameter attribute. This means it can be set by another component, like the ConferenceList did.
+- Using that property a row is rendered using the conference properties. And there's a link to the proposals. The page isn't there yet, we're going to create it later.
+- Return to the ConferenceList component and notice the add link to /addconference. 
+- Now open AddConference.razor in the pages folder and observe it matches the /addconference routing.
+- This page uses several built-in components to render the form taking data validation into account. In the last row is a submit button.
+- When it is pressed the method HandleValidSubmit is called (See the EditForm declaration)
+- It adds the new conference and navigates back to / which is the conferencelist.
+
+Stage three: Creating components
+
+- We're separating code from markup in the ProposalList component we're going to create.
+- Create a class in the pages folder called ProposalListBase. Inherit from ComponentBase.
+- Add the namespace of the new class to _Imports.razor
+- By selecting add => new item add a razor component called ProposalList in the pages folder.
+- Delete everything that's in it and on the first line type: @page "/proposals/{ConferenceId}"
+- On the second line type: @inherits ProposalListBase.
+- The razor part of the component inherits from ProposalListBase en ProposalListBase from ComponentBase.
+- In ProposalListBase create a string property called ConferenceId with the Parameter attribute above it. Switch back to the razor part. ConferenceId is in the expression part of the page's routing. The property ConferenceId is going to be filled by the value behind "proposals/".
+- In ProposalListBase create another property of type IEnumerable<Proposal> called Proposals. Make it protected. Proposal is in the RpcApi namespace.
+- Add the following code to inject the service that is retrieving the proposals:
+
+[Inject]
+protected IProposalService ProposalService { get; set; }
+
+IProposalService is in the Blazor.Services namespace.
+
+- Override OnInitializedAsync and fill the Proposals property by awaiting the GetAll method on IProposalService. As a parameter parse 
+the ConferenceId string parameter to an int. (int.Parse(ConferenceId))
+- For the Razor part paste the razor syntax copied from the ConferenceList component. And change the following:
+	- The columns of the table are Title, Speaker, Approved and Actions
+	- The component used in the foreach is ProposalListItem. We don't have that yet, but we're creating it next. Pass in the proposal by using the proposal attribute.
+	- Change the add link to /addproposal/@ConferenceId
+- Create the ProposalListItem component. I'm assuming you're putting code and markup in one file for this one, but feel free to separate.
+- Inject IProposalService in the component by typing: @inject IProposalService proposalService. 
+- Create a code segment with a Proposal property of type Proposal with the parameter attribute.
+- Create a method HandleApprove that sets the Approved property of the proposal to true and calls approve on the IProposalService object specifying the Id of the proposal.
+- Above the code segment create a <tr> with 2 <td>s rendering title and speaker. 
+- Create an if statement that checks the Approved property. If its true, just render the text "Yes" in a <td>. If not, render this in a <td>:
+<a @onclick="@HandleApprove">Approve</a>
+- Run the application to test out and admire your work.
+- Important: retrace your steps and make sure you really understand what's going on. If not, ask Roland.
+
+Stage four: Creating a form
+
+- With the AddConference component as guidance, create an AddProposal component. Pass in the ConferenceId and use the Add method on IProposalService to add the new proposal.
+
+Part two:
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+Stage five: Advanced component writing
+
+- Open the solution in the AdvancedStart folder.
+- The project BethanysPieShopHRM.Server contains the Blazor app that connects to an API in the cloud. BethanysPieShopHRM.Api is a project that uses Web API. The API is used by the Blazor app.
+- Make sure Visual Studio is configured to run both projects. (Right click on the solution and go to properties). Run the application to see what it does. The API should create a database on the fly with initial data. The Blazor application should show one employee when "employees" is clicked on the left of the screen.
+- Study the workings of the application. Be sure you understand it. Especially the part involving the BenefitSelector component.
+- By clicking the thumbsup symbol next to an employee row the BenefitSelector component shows. It's not finished yet, we're working on it in this part of the workshop.
+- First, when a benefit is selected (with the checkbox), the startdate of the benefit should be shown and there should be an input for the enddate. Both are set in the CheckBoxChanged method.
+- To add this add the following code below the last <td>:
+
+@if (benefit.Selected)
+{
+     <td>@benefit.StartDate</td>
+     <td><input type="date" @bind="@benefit.EndDate" /></td>
+}
+else
+{
+     <td></td>
+     <td></td>
+}
+
+- If a premium benefit is selected, Wellness and Education are premium benefits, we want the employee row to be highlighted. This requires the BenefitSelector to notify the EmployeeRow component. We can do that with an EventCallback which is a wrapped delegate.
+- At the following to BenefitSelectorBase:
+
+[Parameter]
+public EventCallback<bool> OnPremiumToggle { get; set; }
+
+- And then in the final line of the CheckBoxChanged method:
+
+await OnPremiumToggle.InvokeAsync(Benefits.Any(b => b.Premium && b.Selected));
+
+- Add the following method to EmployeeRowBase:
+
+public void PremiumToggle(bool premiumBenefit)
+{
+	Employee.HasPremiumBenefits = premiumBenefit;
+}
+
+- Then make sure the part where the benefit selector is rendered looks like this:
+
+<BenefitSelector Employee="Employee" OnPremiumToggle="@PremiumToggle" />
+
+- In the EmployeeRow.razor file declare a variable below the line with @inherits like this:
+
+@{
+    var cssClass = Employee.HasPremiumBenefits ? "table-success" : "";
+}
+
+- Finally add the cssClass the the first <tr>:
+
+<tr class="@cssClass">
+
+- Run the application and see if it works. Wellness and Education are premium benefits so if you check these the row should be highlighted.
+- Now take a step back and make sure you understand each step we made. If you don't understand please ask Roland.
+
+
+Stage six: Cascading values
+- Continue with the previous project or open the project in AdvancedFinished.
+- In App.razor find the CascadingValue component which assigns the @buttonClass value.
+- Note that this is one-way data-binding too.
+- Now open the file AddEmployeeDialogBase in the Components folder.
+- Notice that this component consumes the value defined in App.razor.
+- See if you can understand how this works with Roland's explanation in mind.
+- For the reasons Roland mentioned, using cascading values with primitive types (in this case a string) might not be the best idea.
+- Implement a better way to do this. Create a seperate class called Theme and give that a property called ButtonClass.
+- See if you can refactor the cascading value code to use this new type instead of the string.
+- Add another property to the class and consume that elsewhere in the application (be creative :-))
+
+Stage seven: Understanding chained binds
+
+- Open the solution in the TemplatesFinished folder and run it (just the Blazor project)
+- In the assembly ComponentsLibrary observe the DateField component
+- Integrate this component in the BenefitSelector component replacing the <input> for the EndDate.
+
+
+Stage eight: Templates
+- Open the solution in the TemplatesFinished folder and run it (just the Blazor project)
+- Go to Employees and observe that all employees with premium benefits are now highlighted and there's a little button in the top left corner of the table too to switch to condensed mode and back.
+- Open the benefits pulldown of one of the employees. Notice that the exact same functionality is in this table too.
+- Close the solution and open the solution in TemplatesStart where this templated table is not implemented yet.
+- In the ComponentLibrary assembly there's a razor file called TableTemplate. Open it.
+- Notice the use of IsSmall, TableHeader, RowTemplate, Items, HighLightRow, ShowChildTemplate and ChildTemplate.
+- At the top, observe @typeparam TItem.
+- Now switch to the code part of this templated component by clicking on the triangle in front of TableTemplate.razor in the solution explorer and opening the cs file.
+- Notice that this uses the partial class strategy to seperate markup from code, not inheritance.
+- Study this code and relate it to the Razor you just saw.
+- Pay special attention to the where clause underneath the class declaration. It says that the type used for TItem must implement the ITableModel interface.
+- Go to ITableModel and observe there are 2 properties defined (it is in the Shared assembly)
+- Go to the BenefitSelector component (the Razor part). There is now a normal table rendering the benefits.
+- Get rid of the line <table class="table table-sm"> and replace it with:
+<TableTemplate Items="Benefits" IsSmall="true" TItem="BenefitModel">
+- Be sure to get this. We give the template the Benefits collection to render, we set the initial value of IsSmall to true and we let the template know the type it has to use.
+- Adjust the table closing tag.
+- Replace the first tr tag with <TableHeader> and close with </TableHeader>
+- Get rid of the foreach (including the curly braces).
+- Replace the tr that follows with <RowTemplate>
+- Replace references to Benefit (Benefit.Selected, Benefit.Description etc.) with context (context.Selected, context.Description etc.)
+- Determine the type of "context". It is a BenefitModel instance.
+- Try to run the project. It doesn't work yet because BenefitModel has to implement the ITableModel interface.
+- Find BenefitModel (in the Shared assembly) and implement the interface.
+- Add the two properties like this:
+
+        public bool HighLightRow 
+        { 
+            get 
+            { 
+                return Premium;
+            } 
+        }
+
+        public bool ShowChildTemplate 
+        { 
+            get
+            {
+                return false;
+            }
+        }
+
+- So a benefit gets highlighted when it is Premium and it doesn't use a child template.
+- Run the application to see if it works. Retrace your steps to make sure you get everything so far.
+- In EmployeeOverview (in the Pages folder) there's a table too. Apply the TableTemplate here as well.
+
+<TableTemplate Items="Employees" TItem="EmployeeModel" Context="Employee">
+
+- Notice Context here. You are declaring a name for the model here.Employee so we don't have to use "context". This is more semantic.
+- For the RowTemplate just copy all td's from EmployeeRow. The rest of the RowTemplate component isn't needed. You can get rid of EmployeeRow when you're done copying if you want.
+- Adjust the rest if needed the same way we did with the BenefitSelector.
+
+- The ITableModel properties for EmployeeModel:
+
+        public bool HighLightRow 
+        { 
+            get 
+            {
+                return HasPremiumBenefits;
+            } 
+        }
+
+        public bool ShowChildTemplate
+        {
+            get
+            {
+                return ShowBenefits;
+            }
+        }
+
+
+ - So an Employee's row gets highlighted when she/he has premium benefits. The child template is the benefitselector which is available when ShowBenefits is true.
+ - When you have it running again, retrace your steps.
+
+ Stage nine: Auth
+
+- Open the solution in the BlazorExampleAuth folder.
+- Study how the identity provider is configured and how the Blazor app and the gRPC API hook into it. Special things of interest: the startup class of all 3 projects and how ConferenceAPIService uses the access token in the request as well as how the landing page is protected against unauthorized use.
+- Start all three applications together and press the login button in the browser windows of the Blazor app.
+- If all is well you'll get a redirect to the login screen of the identity provider.
+- Login and the list of conferences should show. Username: alice, password: alice
+- Click on the proposals link behind a conference.
+- Notice the error message.
+- Fix the problem :-)
+
+Advanced:
+- In the Config.cs of the IdentityProvider project add an APIScope "proposalaccess".
+- Make sure you include it in the allowed scopes of the confarchweb client.
+- Create an authorization policy in the startup class of the API that checks this new scope.
+- Apply the policy to the ProposalService class.

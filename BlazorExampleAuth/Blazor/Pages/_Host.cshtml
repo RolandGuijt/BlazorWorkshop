@@ -1,0 +1,27 @@
+﻿@page "/"
+@namespace Blazor.Pages
+@using Auth
+@using Microsoft.AspNetCore.Authentication
+
+@{
+    var tokens = new InitialApplicationState
+    {
+        AccessToken = await HttpContext.GetTokenAsync("access_token"),
+    };
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blazor</title>
+    <base href="~/" />
+    <link href="~/css/all.min.css" rel="stylesheet" />
+</head>
+<body>
+    <app>@(await Html.RenderComponentAsync<App>(RenderMode.Static, new { InitialState = tokens }))</app>
+
+    <script src="_framework/blazor.server.js"></script>
+</body>
+</html>
