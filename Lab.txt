@@ -18,7 +18,7 @@ Stage one: Blazor first steps
 Stage two: Exploration of the first demo project
 
 - Open the solution in the Start folder. This is a server-side Blazor project. In the finished folder is the application as it should be when you finish this lab. So if you want to peek..
-- Run the application. Both the API and Blazor app should start. If not, check the solution settings. (Right click on solution, go to properties)
+- Run the application. Both the API and Blazor app should start. If not, check the solution settings. (Right click on solution, go to properties, then in the "startup project" section, select "multiple projects" and select start from the dropdown for both projects.)
 - A list of conferences is displayed. And below the list a add button that lets you add a new conference.
 - Before you're creating components yourself we'll first make sure you understand how this part sticks together.
 - Examine program.cs, startup.cs, _Host.cshtml and App.razor in order. See if you can follow application startup as explained by Roland.
