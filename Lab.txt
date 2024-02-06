@@ -39,14 +39,14 @@ Stage two: Exploration of the first demo project
 Stage three: Creating components
 
 - We're separating code from markup in the ProposalList component we're going to create.
-- Create a class in the pages folder called ProposalListBase. Inherit from ComponentBase.
+- Create a class in the pages folder called ProposalListModel. Inherit from ComponentBase.
 - Add the namespace of the new class to _Imports.razor
 - By selecting add => new item add a razor component called ProposalList in the pages folder.
 - Delete everything that's in it and on the first line type: @page "/proposals/{ConferenceId}"
-- On the second line type: @inherits ProposalListBase.
-- The razor part of the component inherits from ProposalListBase en ProposalListBase from ComponentBase.
-- In ProposalListBase create a string property called ConferenceId with the Parameter attribute above it. Switch back to the razor part. ConferenceId is in the expression part of the page's routing. The property ConferenceId is going to be filled by the value behind "proposals/".
-- In ProposalListBase create another property of type IEnumerable<Proposal> called Proposals. Make it protected. Proposal is in the RpcApi namespace.
+- On the second line type: @inherits ProposalListModel.
+- The razor part of the component inherits from ProposalListModel and ProposalListModel from ComponentBase.
+- In ProposalListModel create a string property called ConferenceId with the Parameter attribute above it. Switch back to the razor part. ConferenceId is in the expression part of the page's routing. The property ConferenceId is going to be filled by the value behind "proposals/".
+- In ProposalListModel create another property of type IEnumerable<Proposal> called Proposals. Make it protected. Proposal is in the RpcApi namespace.
 - Add the following code to inject the service that is retrieving the proposals:
 
 [Inject]
