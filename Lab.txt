@@ -1,13 +1,13 @@
 Before you start. Please check:
 
-- If you have an up-to-date (not older than a month) Visual Studio 2022.
+- If you have an up-to-date (not older than a month or 3) Visual Studio 2022.
 
 Part one
 -----------------------------------------------------------------------------------------------------------------------------------------
 
 Stage one: Blazor first steps
 
-- In Visual Studio create a new Blazor Server or Blazor WebAssembly project. Do not choose the "empty" versions.
+- In Visual Studio create a new Blazor Server or Blazor WebAssembly project. Do not choose the "empty" versions. Also don't use "Blazor Web App" for now.
 - Run the application and see what it does.
 - Add a page with your contact information called contact by right clicking on the project, select add => new razor component
 - Make sure you add the page directive.
@@ -18,7 +18,7 @@ Stage one: Blazor first steps
 Stage two: Exploration of the first demo project
 
 - Open the solution in the Start folder. This is a server-side Blazor project. In the finished folder is the application as it should be when you finish this lab. So if you want to peek..
-- Run the application. Both the API and Blazor app should start. If not, check the solution settings. (Right click on solution, go to properties, then in the "startup project" section, select "multiple projects" and select start from the dropdown for both projects.)
+- Run the application. Both the API and Blazor app should start. If not, check the solution settings.
 - A list of conferences is displayed. And below the list a add button that lets you add a new conference.
 - Before you're creating components yourself we'll first make sure you understand how this part sticks together.
 - Examine program.cs, startup.cs, _Host.cshtml and App.razor in order. See if you can follow application startup as explained by Roland.
@@ -74,10 +74,36 @@ Stage four: Creating a form
 
 - With the AddConference component as guidance, create an AddProposal component. Pass in the ConferenceId and use the Add method on IProposalService to add the new proposal.
 
+Bonus stage: 
+
+Now do it yourself: No script and no solution :-)
+
+There's an HousesApi folder in the course downloads. Load it into your IDE and create the database for it: go to the terminal and type: dotnet ef database update.
+
+Now start it and go to the /swagger page in your browser. See if it works and try out the /houses get endpoint. You should see json containing house info.
+Build a Blazor web assembly application using this API.
+
+Start with a new Blazor web assembly project and build the following:
+
+- A table that lists all houses
+- A house detail page that shows when a house is clicked
+- A form that introduces a new house
+- On the detail page, add a table that lists the bids for the house
+- Add textboxes and a button to the table so that new bids can be entered.
+
+Stage five: Blazor Web App: Mixed render modes
+
+- Make a copy of the project in the "finished" directory.
+- Before doing anything else, load it up and run it to see everything works.
+- Now in a second instance of your IDE, create a new "Blazor Web App" project choosing "Auto" as interactive render mode.
+- Recreate the app of the first instance (which you loaded from the finished directory, the Blazor Server app) in the second instance (the new Blazor Web App project).
+- Evaluate each component. Does it make sense to make its rendermode static, interactive server or interactive client? Or maybe auto?
+- For the static components where it makes sense: apply stream rendering.
+
 Part two:
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
-Stage five: Advanced component writing
+Stage six: Advanced component writing
 
 - Open the solution in the AdvancedStart folder.
 - The project BethanysPieShopHRM.Server contains the Blazor app that connects to an API in the cloud. BethanysPieShopHRM.Api is a project that uses Web API. The API is used by the Blazor app.
@@ -133,7 +159,7 @@ public void PremiumToggle(bool premiumBenefit)
 - Now take a step back and make sure you understand each step we made. If you don't understand please ask Roland.
 
 
-Stage six: Cascading values
+Stage seven: Cascading values
 - Continue with the previous project or open the project in AdvancedFinished.
 - In App.razor find the CascadingValue component which assigns the @buttonClass value.
 - Note that this is one-way data-binding too.
@@ -145,14 +171,14 @@ Stage six: Cascading values
 - See if you can refactor the cascading value code to use this new type instead of the string.
 - Add another property to the class and consume that elsewhere in the application (be creative :-))
 
-Stage seven: Understanding chained binds
+Stage eight: Understanding chained binds
 
 - Open the solution in the TemplatesFinished folder and run it (just the Blazor project)
 - In the assembly ComponentsLibrary observe the DateField component
 - Integrate this component in the BenefitSelector component replacing the <input> for the EndDate.
 
 
-Stage eight: Templates
+Stage nine: Templates
 - Open the solution in the TemplatesFinished folder and run it (just the Blazor project)
 - Go to Employees and observe that all employees with premium benefits are now highlighted and there's a little button in the top left corner of the table too to switch to condensed mode and back.
 - Open the benefits pulldown of one of the employees. Notice that the exact same functionality is in this table too.
@@ -227,7 +253,7 @@ Stage eight: Templates
  - So an Employee's row gets highlighted when she/he has premium benefits. The child template is the benefitselector which is available when ShowBenefits is true.
  - When you have it running again, retrace your steps.
 
- Stage nine: Auth
+ Stage ten: Auth
 
 - Open the solution in the BlazorExampleAuth folder.
 - Study how the identity provider is configured and how the Blazor app and the gRPC API hook into it. Special things of interest: the startup class of all 3 projects and how ConferenceAPIService uses the access token in the request as well as how the landing page is protected against unauthorized use.
